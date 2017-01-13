@@ -86,16 +86,12 @@
         toggleAdminPanel: function() {
             if (!octopus.currentSelectedCatId && octopus.currentSelectedCatId != 0) return;
             if (octopus.adminPanelOpen) {
-                // close admin panel
                 view.admin.hidePanel();
-                // than set 
-                 octopus.adminPanelOpen = false;
+                octopus.adminPanelOpen = false;
             }
             else {
-                // open admin panel
                 view.admin.showPanel(model.getCat(octopus.currentSelectedCatId));
-                // than set
-                 octopus.adminPanelOpen = true;
+                octopus.adminPanelOpen = true;
             }
         },
         updateCatData: function(newCatData) {
@@ -202,7 +198,7 @@
             },
             updateCounter: function(cat) {
                 view.catDisplay.clickCount.textContent = cat.clickCount;
-                view.admin.showPanel(cat);
+                if (octopus.adminPanelOpen) view.admin.showPanel(cat);
             },
             catReaction: function(reaction) {
                 view.catDisplay.catReactBox.textContent = reaction;
@@ -212,7 +208,7 @@
             init: function() {
                 var div = document.createElement('div');
                 div.className = 'admin-box';
-                div.innerHTML = '<div><button id="admin-button">Admin</button></div><div class="input-box"><div><label>Name: <input type="text" name="name" size="10" maxlength="10"/></label></div><div><label>Image: <input type="text" name="image" size="35"/></label></div><div><label>Click Count: <input type="text" name="clickCount" size="4" maxlength="4"/></label></div></div>';
+                div.innerHTML = '<div><button id="admin-button">Admin</button></div><div class="input-box"><div><label>Name: <input type="text" name="name" size="20" maxlength="20"/></label></div><div><label>Image: <input type="text" name="image" size="35"/></label></div><div><label>Click Count: <input type="text" name="clickCount" size="4" maxlength="4"/></label></div></div>';
                 container.appendChild(div);
                 
                 view.admin.adminButton = document.getElementById('admin-button');
@@ -242,7 +238,7 @@
                 view.admin.inputBox.style.display = 'none';
             },
             showPanel: function(cat) {
-                view.admin.adminButton.className.replace(view.admin.activeClass, '');
+                view.admin.adminButton.className = view.admin.adminButton.className.replace(view.admin.activeClass, '');
                 view.admin.adminButton.className += view.admin.activeClass;
                 
                 view.admin.nameInput.value = cat.name;
