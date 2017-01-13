@@ -202,6 +202,7 @@
             },
             updateCounter: function(cat) {
                 view.catDisplay.clickCount.textContent = cat.clickCount;
+                view.admin.showPanel(cat);
             },
             catReaction: function(reaction) {
                 view.catDisplay.catReactBox.textContent = reaction;
