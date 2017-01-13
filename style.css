@@ -80,3 +80,41 @@ body {
     top: 50%;
     left: calc(50% - 20px);
 }
+
+.admin-box {
+    font-size: 20px;
+    text-align: left;
+    color: rebeccapurple;
+}
+#admin-button {
+    margin: 15px 0 10px;
+    color: white;
+    border: none;
+    padding: 15px 15px 15px 14px;
+    width: 100%;
+    font-size: inherit;
+    cursor: pointer;
+    box-shadow: 1px 1px 3px 0px #bbb;
+}
+
+#admin-button.active {
+    background: rebeccapurple;
+}
+.admin-box input {
+    background: transparent;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid #333;
+    text-align: center;
+    font-size: inherit;
+}
+.admin-box input:active {
+    border-bottom: 1px solid blue;
+}
+.admin-box input:focus {
+    border-bottom: 1px solid rebeccapurple;
+}
+
+.input-box {
+    display: none;
+}

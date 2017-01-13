@@ -1,8 +1,7 @@
 ;(function() {
     var model = {
-        cats: [],
         init: function(modelData) {
-            this.cats = modelData;
+            this.cats = modelData || [];
         },
         updateClickCount: function(catId) {
             var cat = this.cats[catId];
@@ -24,8 +23,20 @@
         changeData: function(cat, newData) {
             if (newData.name) cat.name = newData.name;
             if (newData.image) cat.image = newData.image;
-            if (newData.clickCount) cat.clickCount = newData.clickCount;
-        }
+            if (newData.clickCount) {
+                newData.clickCount = parseInt(newData.clickCount);
+                cat.clickCount = newData.clickCount ? newData.clickCount : 0;
+            }
+            
+            return cat;
+        },
+        setMoodPoint: function(id) {
+            var cat = this.cats[id];
+            while(!cat.moodPoint) cat.moodPoint = Math.floor(Math.random() * 10);
+            
+            return cat;
+        },
+        catReactions: ['Purr..', 'Meow']
     };
     
     var octopus = {
@@ -51,10 +62,46 @@
             var cat = model.getCat(octopus.currentSelectedCatId);
             if (cat) view.catDisplay.render(cat);
             
+            model.setMoodPoint(id);
+            
+            if (octopus.adminPanelOpen) view.admin.showPanel(cat);
+            
         },
         catClicked: function() {
             var cat = model.updateClickCount(octopus.currentSelectedCatId);
             view.catDisplay.updateCounter(cat);
+            this.catReaction(cat);
+        },
+        catReaction: function(cat) {
+            if ((cat.clickCount % cat.moodPoint) == 0) {
+                var index = cat.clickCount % model.catReactions.length;
+                setTimeout(function() {
+                    view.catDisplay.catReaction(model.catReactions[index]);
+                    setTimeout(function() {
+                        view.catDisplay.catReaction('');
+                    }, 1000);
+                }, 1000)
+            }
+        }, 
+        toggleAdminPanel: function() {
+            if (!octopus.currentSelectedCatId && octopus.currentSelectedCatId != 0) return;
+            if (octopus.adminPanelOpen) {
+                // close admin panel
+                view.admin.hidePanel();
+                // than set 
+                 octopus.adminPanelOpen = false;
+            }
+            else {
+                // open admin panel
+                view.admin.showPanel(model.getCat(octopus.currentSelectedCatId));
+                // than set
+                 octopus.adminPanelOpen = true;
+            }
+        },
+        updateCatData: function(newCatData) {
+            var newCat = model.changeData(model.getCat(octopus.currentSelectedCatId), newCatData);
+            view.catDisplay.render(newCat);
+            view.admin.showPanel(newCat);
         }
     };
     
@@ -140,7 +187,7 @@
                     view.loader.hide();
                 };
                 
-                if (cat.imageNode) {
+                if (cat.imageNode && cat.imageNode.src === cat.image) {
                     renderImagePanel(cat.imageNode);
                 }
                 else {
@@ -155,6 +202,53 @@
             },
             updateCounter: function(cat) {
                 view.catDisplay.clickCount.textContent = cat.clickCount;
+            },
+            catReaction: function(reaction) {
+                view.catDisplay.catReactBox.textContent = reaction;
+            }
+        },
+        admin: {
+            init: function() {
+                var div = document.createElement('div');
+                div.className = 'admin-box';
+                div.innerHTML = '<div><button id="admin-button">Admin</button></div><div class="input-box"><div><label>Name: <input type="text" name="name" size="10" maxlength="10"/></label></div><div><label>Image: <input type="text" name="image" size="35"/></label></div><div><label>Click Count: <input type="text" name="clickCount" size="4" maxlength="4"/></label></div></div>';
+                container.appendChild(div);
+                
+                view.admin.adminButton = document.getElementById('admin-button');
+                view.admin.inputBox = document.querySelector('.input-box');
+                view.admin.nameInput = document.querySelector('input[name="name"');
+                view.admin.imageInput = document.querySelector('input[name="image"');
+                view.admin.clickInput = document.querySelector('input[name="clickCount"');
+                // TODO bind event listeners to the input elements
+                view.admin.adminButton.addEventListener('click', function() {
+                    octopus.toggleAdminPanel();
+                });
+                
+                var changeListener = function(e) {
+                    var newCatData = {};
+                    newCatData[e.target.name] = e.target.value;
+                    octopus.updateCatData(newCatData);
+                };
+                view.admin.nameInput.addEventListener('change', changeListener);
+                view.admin.imageInput.addEventListener('change', changeListener);
+                view.admin.clickInput.addEventListener('change', changeListener);
+                
+                view.admin.activeClass = ' active';
+                
+            },
+            hidePanel: function() {
+                view.admin.adminButton.className = view.admin.adminButton.className.replace(view.admin.activeClass, '');
+                view.admin.inputBox.style.display = 'none';
+            },
+            showPanel: function(cat) {
+                view.admin.adminButton.className.replace(view.admin.activeClass, '');
+                view.admin.adminButton.className += view.admin.activeClass;
+                
+                view.admin.nameInput.value = cat.name;
+                view.admin.imageInput.value = cat.image;
+                view.admin.clickInput.value = cat.clickCount;
+                
+                view.admin.inputBox.style.display = 'block';
             }
         },
         init: function(selector) {
@@ -165,6 +259,7 @@
             this.loader.init();
             this.catSelector.init();
             this.catDisplay.init();
+            this.admin.init();
         }
     };
   
